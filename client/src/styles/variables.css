@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════
+   NEXUSTRAFFIC DESIGN SYSTEM — VARIABLES
+   Single source of truth for all design tokens.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── LIGHT MODE (default) ── */
+:root {
+  /* Surfaces */
+  --bg:              #FFFFFF;
+  --surface:         #FFFFFF;
+  --surface-2:       #F2F2F4;
+  --surface-3:       #E8E8EC;
+
+  /* Borders */
+  --border:          #E2E2E6;
+  --border-subtle:   #EBEBEF;
+  --border-color:    #E2E2E6;
+
+  /* Text */
+  --text:            #111113;
+  --text-primary:    #111113;
+  --text-secondary:  #5C5C6E;
+  --text-muted:      #9999AB;
+  --text-inverse:    #FFFFFF;
+
+  /* Accent — orange primary */
+  --accent:          #F97316;
+  --accent-hover:    #EA6A0A;
+  --accent-subtle:   #FFF4EB;
+  --accent-border:   #FDDCBD;
+  --accent-fg:       #C2410C;
+
+  /* Severity: Critical */
+  --critical:        #EF4444;
+  --critical-subtle: #FEF2F2;
+  --critical-border: #FECACA;
+  --critical-fg:     #B91C1C;
+
+  /* Severity: Warning */
+  --warning:         #F59E0B;
+  --warning-subtle:  #FFFBEB;
+  --warning-border:  #FDE68A;
+  --warning-fg:      #B45309;
+
+  /* Severity: Info */
+  --info:            #6366F1;
+  --info-subtle:     #EEF2FF;
+  --info-border:     #C7D2FE;
+  --info-fg:         #4338CA;
+
+  /* Severity: Success */
+  --success:         #10B981;
+  --success-subtle:  #ECFDF5;
+  --success-border:  #A7F3D0;
+  --success-fg:      #065F46;
+
+  /* Elevation */
+  --shadow-xs:   0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:   0 4px 8px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg:   0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --focus-ring:  0 0 0 3px var(--accent-subtle), 0 0 0 1px var(--accent-border);
+
+  /* Geometry */
+  --radius-sm:   5px;
+  --radius:      8px;
+  --radius-md:   11px;
+  --radius-lg:   16px;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --ease:    cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast:  0.1s ease;
+  --t-base:  0.18s ease;
+  --t-slow:  0.3s ease;
+
+  /* Typography */
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-body:    'Figtree', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* NexusTraffic page-level tokens (relief/field pages) */
+  --nt-body-bg:     #FFFFFF;
+  --nt-nav-bg:      #F0F4F8;
+  --nt-nav-border:  #DDE3EA;
+  --nt-card:        #FFFFFF;
+  --nt-card2:       #F5F7FA;
+  --nt-card-border: #E2E6EC;
+  --nt-text:        #1A2533;
+  --nt-dim:         #5A7A8E;
+  --nt-bright:      #111827;
+  --nt-scroll-trk:  #EEF1F5;
+  --nt-scroll-tmb:  #C5D0DC;
+  --nt-glass:       rgba(240, 244, 248, 0.92);
+  --nt-section-bg:  #F0F4F8;
+  --nt-center-bg:   #E8EDF3;
+}
+
+/* ── DARK MODE ── */
+[data-theme="dark"] {
+  --bg:              #0F0F11;
+  --surface:         #18181B;
+  --surface-2:       #1E1E24;
+  --surface-3:       #27272E;
+
+  --border:          #2C2C34;
+  --border-subtle:   #232329;
+  --border-color:    #2C2C34;
+
+  --text:            #F4F4F5;
+  --text-primary:    #F4F4F5;
+  --text-secondary:  #A1A1AA;
+  --text-muted:      #636370;
+  --text-inverse:    #0F0F11;
+
+  --accent:          #F97316;
+  --accent-hover:    #FB923C;
+  --accent-subtle:   rgba(249, 115, 22, 0.10);
+  --accent-border:   rgba(249, 115, 22, 0.25);
+  --accent-fg:       #FB923C;
+
+  --critical:        #EF4444;
+  --critical-subtle: rgba(239, 68, 68, 0.10);
+  --critical-border: rgba(239, 68, 68, 0.25);
+  --critical-fg:     #FCA5A5;
+
+  --warning:         #F59E0B;
+  --warning-subtle:  rgba(245, 158, 11, 0.10);
+  --warning-border:  rgba(245, 158, 11, 0.25);
+  --warning-fg:      #FDE68A;
+
+  --info:            #818CF8;
+  --info-subtle:     rgba(129, 140, 248, 0.10);
+  --info-border:     rgba(129, 140, 248, 0.25);
+  --info-fg:         #C7D2FE;
+
+  --success:         #34D399;
+  --success-subtle:  rgba(52, 211, 153, 0.10);
+  --success-border:  rgba(52, 211, 153, 0.25);
+  --success-fg:      #A7F3D0;
+
+  --shadow-xs:   0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md:   0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg:   0 12px 24px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2);
+
+  /* NexusTraffic dark tokens */
+  --nt-body-bg:     #0A0A0C;
+  --nt-nav-bg:      #141417;
+  --nt-nav-border:  #1F3448;
+  --nt-card:        #141417;
+  --nt-card2:       #1B1B1E;
+  --nt-card-border: #1F3448;
+  --nt-text:        #C5D0DC;
+  --nt-dim:         #5A7A8E;
+  --nt-bright:      #F0F6FC;
+  --nt-scroll-trk:  #141417;
+  --nt-scroll-tmb:  #1F3448;
+  --nt-glass:       rgba(20, 20, 23, 0.92);
+  --nt-section-bg:  #0E1218;
+  --nt-center-bg:   #0A0D12;
+}

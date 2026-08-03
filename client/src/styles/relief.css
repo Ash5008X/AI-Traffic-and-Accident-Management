@@ -1,0 +1,129 @@
+/* ═══════════════════════════════════════════════════════
+   RELIEF CENTER PAGES — Consolidated styles
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Dashboard 3-column layout ── */
+.relief-main { display: flex; flex: 1; overflow: hidden; }
+.relief-col-left { width: 25%; display: flex; flex-direction: column; border-right: 1px solid rgba(31,52,72,0.3); overflow-y: auto; }
+.relief-col-center { width: 45%; display: flex; flex-direction: column; border-right: 1px solid rgba(31,52,72,0.3); overflow-y: auto; }
+.relief-col-right { width: 30%; overflow-y: auto; }
+
+/* Queue header */
+.queue-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(31,52,72,0.3); background: var(--nt-nav-bg); }
+.queue-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 0.08em; color: var(--nt-bright); }
+.new-badge { background: #FF3B30; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+
+/* Incident cards in queue */
+.inc-card {
+  padding: 14px 16px; border-bottom: 1px solid rgba(31,52,72,0.3); cursor: pointer;
+  transition: background 0.15s ease; border-left: 3px solid transparent;
+}
+.inc-card:hover { background: rgba(31,52,72,0.15); }
+.inc-card.selected { background: rgba(249,115,22,0.08); border-left-color: #F97316; }
+.inc-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.inc-card-id { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--nt-dim); }
+.inc-card-time { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--nt-dim); }
+.inc-card-title { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 14px; color: var(--nt-bright); margin-bottom: 4px; }
+.inc-sev-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+
+/* Detail panel */
+.relief-detail-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--nt-dim); }
+.relief-detail-panel { display: flex; flex-direction: column; flex: 1; }
+.relief-detail-header { padding: 32px; border-bottom: 1px solid rgba(31,52,72,0.3); border-left: 4px solid #FF3B30; position: relative; background: var(--nt-card); }
+.relief-detail-status { position: absolute; top: 16px; right: 24px; font-family: 'Fira Code', monospace; font-size: 14px; font-weight: 700; padding: 4px 12px; border-radius: 4px; }
+.relief-detail-id { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--nt-dim); }
+.relief-detail-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 32px; color: var(--nt-bright); margin-top: 8px; }
+.relief-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
+.relief-meta-label { font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--nt-dim); margin-bottom: 4px; }
+.relief-meta-value { font-family: 'Fira Code', monospace; font-size: 18px; color: var(--nt-bright); }
+
+/* Detail body */
+.relief-detail-body { padding: 24px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.relief-detail-desc { font-family: 'Outfit', sans-serif; font-size: 14px; line-height: 1.6; color: var(--nt-bright); }
+
+/* Action buttons */
+.relief-actions { display: flex; flex-wrap: wrap; gap: 16px; }
+.relief-action-btn { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: -0.02em; padding: 16px; border-radius: 4px; color: #fff; border: none; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.relief-action-btn:hover { filter: brightness(1.1); }
+.relief-action-btn:active { transform: scale(0.98); }
+.relief-action-btn.en-route { background: #3A86FF; }
+.relief-action-btn.resolve { background: #34C759; }
+.relief-action-btn.dismiss { background: #FF3B30; }
+
+/* Chat log */
+.chat-section { border-top: 1px solid rgba(31,52,72,0.4); padding-top: 16px; }
+.chat-section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: var(--nt-dim); margin-bottom: 12px; }
+.chat-log { display: flex; flex-direction: column; gap: 12px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+.chat-msg { padding: 12px 16px; border-radius: 8px; max-width: 85%; font-family: 'Outfit', sans-serif; font-size: 13px; }
+.chat-msg.relief { background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.2); align-self: flex-end; color: var(--nt-bright); }
+.chat-msg.user { background: rgba(58,134,255,0.1); border: 1px solid rgba(58,134,255,0.2); align-self: flex-start; color: var(--nt-bright); }
+.chat-msg-meta { font-family: 'Fira Code', monospace; font-size: 9px; color: var(--nt-dim); margin-top: 4px; }
+
+/* Chat input */
+.chat-input-area { padding: 16px; border-top: 1px solid rgba(31,52,72,0.5); background: var(--nt-nav-bg); position: sticky; bottom: 0; }
+.chat-input-wrap { display: flex; align-items: center; gap: 8px; }
+.chat-text-input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--nt-card-border); background: var(--nt-card); color: var(--nt-bright); font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; }
+.chat-text-input:focus { border-color: #F97316; }
+.chat-text-input::placeholder { color: var(--nt-dim); }
+.chat-send-btn { color: #F97316; transition: transform 0.15s; }
+.chat-send-btn:hover { transform: scale(1.1); }
+
+/* Stat chips (right column) */
+.stat-chip { padding: 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--nt-card); border: 1px solid var(--nt-card-border); }
+.stat-chip-label { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; color: var(--nt-dim); }
+.stat-chip-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 28px; }
+
+/* Zone heatmap */
+.zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.zone-cell { background: rgba(31,52,72,0.3); border: 1px solid rgba(31,52,72,0.5); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; aspect-ratio: 16/9; }
+.zone-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: var(--nt-dim); }
+.zone-count { font-family: 'Fira Code', monospace; font-size: 20px; color: var(--nt-bright); }
+
+/* Mini map placeholder */
+.mini-map { border-radius: 8px; border: 1px solid var(--nt-card-border); height: 220px; overflow: hidden; position: relative; background: var(--nt-card); display: flex; align-items: center; justify-content: center; }
+.mini-map-label { position: absolute; bottom: 8px; left: 8px; z-index: 10; font-family: 'Fira Code', monospace; font-size: 10px; color: #F97316; font-weight: 700; padding: 2px 8px; border: 1px solid rgba(249,115,22,0.3); background: var(--nt-glass); }
+
+/* Alert card (recent alerts) */
+.relief-alert-card { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--nt-card-border); background: var(--nt-card); margin-bottom: 8px; }
+.relief-alert-type { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+.relief-alert-msg { font-family: 'Outfit', sans-serif; font-size: 12px; color: var(--nt-bright); line-height: 1.4; }
+.relief-alert-time { font-family: 'Fira Code', monospace; font-size: 9px; color: var(--nt-dim); margin-top: 4px; }
+
+/* ── Active Incidents Page ── */
+.relief-page-content { flex: 1; overflow-y: auto; padding: 24px; }
+.incidents-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--nt-card); border: 1px solid var(--nt-card-border); border-radius: 8px; overflow: hidden; }
+.incidents-table th { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 12px 16px; text-align: left; color: var(--nt-dim); background: var(--nt-nav-bg); border-bottom: 1px solid var(--nt-card-border); }
+.incidents-table td { padding: 12px 16px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--nt-bright); border-bottom: 1px solid rgba(31,52,72,0.2); }
+.incidents-table tr:hover td { background: rgba(31,52,72,0.1); }
+
+/* ── Relief Alerts Page ── */
+.alert-composer { padding: 24px; border: 1px solid var(--nt-card-border); border-radius: 8px; background: var(--nt-card); }
+.alert-composer h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.08em; color: var(--nt-bright); margin-bottom: 16px; text-transform: uppercase; }
+.composer-field { margin-bottom: 16px; }
+.composer-label { font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; color: var(--nt-dim); margin-bottom: 6px; display: block; }
+.composer-input { width: 100%; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--nt-card-border); background: var(--nt-section-bg); color: var(--nt-bright); font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; }
+.composer-input:focus { border-color: #F97316; }
+textarea.composer-input { resize: vertical; min-height: 100px; }
+.composer-submit { width: 100%; padding: 12px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; background: #F97316; color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+.composer-submit:hover { background: #EA6A0A; }
+
+/* ── Teams Page ── */
+.teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.team-card { padding: 20px; border-radius: 8px; border: 1px solid var(--nt-card-border); background: var(--nt-card); }
+.team-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.team-avatar { width: 40px; height: 40px; border-radius: 50%; background: #3A86FF; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; }
+.team-name { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px; color: var(--nt-bright); }
+.team-role { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--nt-dim); }
+.team-stats { display: flex; gap: 16px; }
+.team-stat { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--nt-dim); }
+.team-stat strong { color: var(--nt-bright); }
+
+/* ── Reports Page (relief) ── */
+.reports-filters { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+.reports-search { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--nt-card-border); background: var(--nt-card); color: var(--nt-bright); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; width: 240px; }
+.reports-search:focus { border-color: #F97316; }
+
+@media (max-width: 960px) {
+  .relief-main { flex-direction: column; }
+  .relief-col-left, .relief-col-center, .relief-col-right { width: 100%; border-right: none; border-bottom: 1px solid rgba(31,52,72,0.3); }
+}
