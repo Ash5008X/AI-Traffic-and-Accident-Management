@@ -2,7 +2,7 @@
  * Socket.io singleton manager with ES Module imports and graceful fallback.
  */
 import { io } from 'socket.io-client';
-import { AUTH_KEY } from '../utils/constants';
+import { API_BASE, AUTH_KEY } from '../utils/constants';
 
 let socket = null;
 
@@ -13,7 +13,8 @@ const socketManager = {
       const authToken = token || (localStorage.getItem(AUTH_KEY) ? JSON.parse(localStorage.getItem(AUTH_KEY))?.token : null);
       if (!authToken) return null;
 
-      socket = io({
+      const socketUrl = API_BASE.replace(/\/api\/?$/, '');
+      socket = io(socketUrl, {
         auth: { token: authToken },
         autoConnect: true,
         reconnectionAttempts: 3,

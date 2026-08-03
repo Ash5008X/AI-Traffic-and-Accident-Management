@@ -82,7 +82,8 @@ const incidentController = {
       const incidents = await Incident.find(filter)
         .sort({ createdAt: -1 })
         .populate('reliefCenterId', 'name location')
-        .populate('reportedBy', 'name email');
+        .populate('reportedBy', 'name email')
+        .lean();
 
       return sendSuccess(res, incidents);
     } catch (err) {
@@ -384,7 +385,7 @@ const incidentController = {
 
       const incidents = await Incident.find({
         status: { $nin: ['resolved', 'dismissed'] },
-      });
+      }).lean();
 
       const nearby = filterAndAnnotate(incidents, centerLat, centerLng, radiusKm);
       return sendSuccess(res, nearby);
@@ -413,7 +414,7 @@ const incidentController = {
     try {
       const incidents = await Incident.find({
         status: { $nin: ['resolved', 'dismissed'] },
-      });
+      }).lean();
 
       const heatmap = incidents.map((inc) => ({
         lat: inc.location.lat,
@@ -470,7 +471,7 @@ const incidentController = {
       const centerLng = adminUser.location.lng;
       const RADIUS_KM = 15;
 
-      const allIncidents = await Incident.find({});
+      const allIncidents = await Incident.find({}).lean();
       const nearby = filterAndAnnotate(allIncidents, centerLat, centerLng, RADIUS_KM);
 
       const activeIncidents = nearby.filter(
@@ -502,10 +503,9 @@ const incidentController = {
         }
       }
 
-      const fieldUnits = await FieldUnit.find({}).populate(
-        'agentId',
-        'name email phone specialization'
-      );
+      const fieldUnits = await FieldUnit.find({})
+        .populate('agentId', 'name email phone specialization')
+        .lean();
 
       return sendSuccess(res, {
         centerLat,

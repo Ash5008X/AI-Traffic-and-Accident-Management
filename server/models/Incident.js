@@ -92,4 +92,10 @@ const incidentSchema = new mongoose.Schema(
   }
 );
 
+// Performance indexes for frequent dashboard, feed, and reporting queries
+incidentSchema.index({ status: 1, severity: 1 });
+incidentSchema.index({ reportedBy: 1 });
+incidentSchema.index({ reliefCenterId: 1 });
+incidentSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('Incident', incidentSchema);

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
+const { securityHeaders } = require('./middleware/security');
 
 // Import Route Handlers
 const authRoutes = require('./routes/authRoutes');
@@ -17,7 +18,8 @@ const messageRoutes = require('./routes/messageRoutes');
 
 const app = express();
 
-// Middleware
+// Security & Parsing Middleware
+app.use(securityHeaders);
 app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
