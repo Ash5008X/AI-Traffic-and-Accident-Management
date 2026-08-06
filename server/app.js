@@ -15,6 +15,7 @@ const teamRoutes = require('./routes/teamRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const reliefCenterRoutes = require('./routes/reliefCenterRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/members', memberRoutes);
 app.use('/api/relief-centers', reliefCenterRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Optional: Serve Frontend Client Build if present
 const clientDistPath = path.join(__dirname, '../client/dist');

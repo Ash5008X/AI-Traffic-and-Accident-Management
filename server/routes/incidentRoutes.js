@@ -1,18 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const incidentController = require('../controllers/incidentController');
-const auth = require('../middleware/auth');
+const { auth, optionalAuth } = require('../middleware/auth');
 
 // Static & special endpoints first
 router.get('/nearby', incidentController.nearby);
-router.get('/stats', incidentController.getStats);
-router.get('/heatmap', incidentController.getHeatmap);
+router.get('/stats', optionalAuth, incidentController.getStats);
+router.get('/heatmap', optionalAuth, incidentController.getHeatmap);
+router.get('/relief-dashboard', auth, incidentController.getReliefDashboard);
+router.get('/relief-incidents', auth, incidentController.getReliefIncidents);
+router.get('/incidents-page-data', optionalAuth, incidentController.getIncidentsPageData);
+router.get('/zone-analytics', optionalAuth, incidentController.getZoneAnalytics);
 router.get('/dashboard-stats', auth, incidentController.dashboardStats);
 
 // General CRUD
 router.post('/', auth, incidentController.create);
-router.get('/', incidentController.getAll);
-router.get('/:id', incidentController.getById);
+router.get('/', optionalAuth, incidentController.getAll);
+router.get('/:id', optionalAuth, incidentController.getById);
 
 // Status & assignment actions
 router.patch('/:id/status', auth, incidentController.updateStatus);

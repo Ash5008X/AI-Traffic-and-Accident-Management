@@ -1,21 +1,54 @@
 const Incident = require('../models/Incident');
 const FieldUnit = require('../models/FieldUnit');
+const ReportService = require('../services/ReportService');
 const { sendSuccess } = require('../utils/apiResponse');
 
 const reportController = {
   async getReports(req, res, next) {
     try {
-      const filter = {};
-      if (req.query.from || req.query.to) {
-        filter.createdAt = {};
-        if (req.query.from) filter.createdAt.$gte = new Date(req.query.from);
-        if (req.query.to) filter.createdAt.$lte = new Date(req.query.to);
-      }
-      if (req.query.severity) filter.severity = req.query.severity;
-      if (req.query.status) filter.status = req.query.status;
-
-      const incidents = await Incident.find(filter).sort({ createdAt: -1 });
+      const incidents = await ReportService.getFilteredIncidents(req.query, req.user);
       return sendSuccess(res, incidents);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async downloadReport(req, res, next) {
+    try {
+      const { from, to, zone, severity, status, format = 'csv' } = req.query;
+      const incidents = await ReportService.getFilteredIncidents(req.query, req.user);
+
+      const activeFilters = [];
+      if (from) activeFilters.push(`From: ${from}`);
+      if (to) activeFilters.push(`To: ${to}`);
+      if (zone && zone !== 'All Zones') activeFilters.push(`Zone: ${zone}`);
+      if (severity && severity !== 'All') activeFilters.push(`Severity: ${severity}`);
+      if (status && status !== 'All') activeFilters.push(`Status: ${status}`);
+
+      const meta = {
+        generatedAt: new Date().toISOString(),
+        filtersSummary: activeFilters.length > 0 ? activeFilters.join(', ') : 'All Incidents',
+      };
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      const fmt = (format || 'csv').toLowerCase();
+
+      if (fmt === 'pdf') {
+        const pdfBuffer = ReportService.exportPDF(incidents, meta);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="incident-report-${dateStr}.pdf"`);
+        return res.send(pdfBuffer);
+      } else if (fmt === 'xlsx' || fmt === 'excel') {
+        const xlsxBuffer = await ReportService.exportExcel(incidents, meta);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="incident-report-${dateStr}.xlsx"`);
+        return res.send(xlsxBuffer);
+      } else {
+        const csvData = ReportService.exportCSV(incidents, meta);
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="incident-report-${dateStr}.csv"`);
+        return res.send(csvData);
+      }
     } catch (err) {
       next(err);
     }
@@ -64,42 +97,11 @@ const reportController = {
   },
 
   async exportPdf(req, res, next) {
-    try {
-      const incidents = await Incident.find(req.query || {}).sort({ createdAt: -1 });
-      let content = 'NEXUSTRAFFIC INCIDENT REPORT\n';
-      content += `Generated: ${new Date().toISOString()}\n\n`;
-
-      incidents.forEach((inc) => {
-        content += `${inc.incidentId} | ${inc.type} | ${inc.severity} | ${inc.status} | ${inc.createdAt}\n`;
-        content += `  Location: ${inc.location?.address || 'N/A'}\n`;
-        content += `  Description: ${inc.description || 'N/A'}\n\n`;
-      });
-
-      res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Disposition', 'attachment; filename=nexustraffic-report.txt');
-      return res.send(content);
-    } catch (err) {
-      next(err);
-    }
+    return this.downloadReport({ ...req, query: { ...req.query, format: 'pdf' } }, res, next);
   },
 
   async exportCsv(req, res, next) {
-    try {
-      const incidents = await Incident.find(req.query || {}).sort({ createdAt: -1 });
-      let csv = 'Incident ID,Type,Severity,Status,Location,Description,Created At,Resolved At\n';
-
-      incidents.forEach((inc) => {
-        const address = inc.location?.address || '';
-        const desc = (inc.description || '').replace(/"/g, '""');
-        csv += `"${inc.incidentId}","${inc.type}","${inc.severity}","${inc.status}","${address}","${desc}","${inc.createdAt}","${inc.resolvedAt || ''}"\n`;
-      });
-
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename=nexustraffic-report.csv');
-      return res.send(csv);
-    } catch (err) {
-      next(err);
-    }
+    return this.downloadReport({ ...req, query: { ...req.query, format: 'csv' } }, res, next);
   },
 };
 

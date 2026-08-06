@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const app = require('./app');
 const { connectDB } = require('./config/db');
 const { initSocket } = require('./services/socketService');
+const { migrateIncidentIds } = require('./utils/incidentIdGenerator');
 
 const PORT = process.env.PORT || 5000;
 
@@ -29,6 +30,10 @@ initSocket(io);
 async function startServer() {
   try {
     await connectDB();
+    await migrateIncidentIds();
+    // Clean up any legacy non-broadcast documents from the alerts collection
+    const Alert = require('./models/Alert');
+    await Alert.deleteMany({ $or: [{ broadcastId: null }, { broadcastId: { $exists: false } }] });
     server.listen(PORT, () => {
       console.log(`====================================================`);
       console.log(`[NexusTRAFFIC] Server running on http://localhost:${PORT}`);

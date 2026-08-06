@@ -9,7 +9,8 @@ const {
   findUserByIdAcrossCollections,
   assignFieldUnitToNearestAdmin,
 } = require('../services/authService');
-const { validateRegister, validateLogin } = require('../validators/schemas');
+const { findNearbyReliefCenter } = require('../services/reliefCenterService');
+const { validateRegister, validateLogin, validateReliefAdminRegister } = require('../validators/schemas');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
 
 const authController = {
@@ -20,7 +21,7 @@ const authController = {
         return sendError(res, validationError, 400);
       }
 
-      const { name, email, password, role, location, phone, specialization } = req.body;
+      const { name, email, password, role, location, phone, specialization, latitude, longitude } = req.body;
 
       // Check if user already exists in any collection
       const existing = await findUserAcrossCollections(email);
@@ -32,12 +33,35 @@ const authController = {
       let user;
 
       if (role === 'relief_admin') {
+        // Validate coordinates for Relief Center registration
+        const coordError = validateReliefAdminRegister(req.body);
+        if (coordError) {
+          return sendError(res, coordError, 400);
+        }
+
+        const lat = Number(latitude);
+        const lng = Number(longitude);
+
+        // Check if another Relief Center exists within 3 km
+        const nearbyCenter = await findNearbyReliefCenter(lng, lat, 3000);
+        if (nearbyCenter) {
+          return sendError(
+            res,
+            'Another relief center already exists within 3 km of this location.',
+            409
+          );
+        }
+
         user = await ReliefCenter.create({
           name,
           email,
           password: hashedPassword,
           role: 'relief_admin',
-          location: location || { lat: 19.076, lng: 72.8777, address: 'Relief Command' },
+          location: { lat, lng, address: '' },
+          geoLocation: {
+            type: 'Point',
+            coordinates: [lng, lat], // GeoJSON: [longitude, latitude]
+          },
           status: 'on_duty',
         });
       } else if (role === 'field_unit') {
@@ -46,7 +70,7 @@ const authController = {
           email,
           password: hashedPassword,
           role: 'field_unit',
-          location: location || { lat: 19.076, lng: 72.8777, address: 'Mobile Unit' },
+          location: location || { lat: null, lng: null, address: 'Mobile Unit' },
           phone: phone || '',
           specialization: specialization || 'General Patrol',
           status: 'active',
@@ -70,7 +94,7 @@ const authController = {
           email,
           password: hashedPassword,
           role: 'user',
-          location: location || { lat: 19.076, lng: 72.8777, address: '' },
+          location: location || { lat: null, lng: null, address: '' },
           preferences: { notifications: true, smsUpdates: false },
         });
       }
@@ -170,11 +194,7 @@ const authController = {
 
       let updated = null;
       if (req.user.role === 'relief_admin') {
-        updated = await ReliefCenter.findByIdAndUpdate(
-          req.user.id,
-          { $set: { location } },
-          { new: true }
-        );
+        return sendError(res, 'Relief Center location is locked and cannot be modified during routine operations.', 403);
       } else if (req.user.role === 'field_unit') {
         updated = await Member.findByIdAndUpdate(
           req.user.id,

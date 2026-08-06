@@ -53,10 +53,40 @@ function validateTeamCreation(body) {
   return null;
 }
 
+/**
+ * Validates extended registration payload for Relief Center Admins.
+ * Ensures latitude and longitude are present and within valid geographic bounds.
+ */
+function validateReliefAdminRegister(body) {
+  const { latitude, longitude } = body || {};
+
+  if (latitude == null || longitude == null) {
+    return 'Latitude and longitude are required for Relief Center registration.';
+  }
+
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+
+  if (isNaN(lat) || isNaN(lng)) {
+    return 'Latitude and longitude must be valid numeric values.';
+  }
+
+  if (lat < -90 || lat > 90) {
+    return 'Latitude must be between -90 and 90.';
+  }
+
+  if (lng < -180 || lng > 180) {
+    return 'Longitude must be between -180 and 180.';
+  }
+
+  return null;
+}
+
 module.exports = {
   validateRegister,
   validateLogin,
   validateIncidentReport,
   validateLocationObject,
   validateTeamCreation,
+  validateReliefAdminRegister,
 };

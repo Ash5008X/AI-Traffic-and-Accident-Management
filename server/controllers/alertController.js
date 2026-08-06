@@ -1,35 +1,18 @@
-const Alert = require('../models/Alert');
-const Incident = require('../models/Incident');
-const Message = require('../models/Message');
+const BroadcastService = require('../services/BroadcastService');
 const User = require('../models/User');
+const notificationService = require('../services/notificationService');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
-const { emitToAll, emitToUser, emitToIncident } = require('../services/socketService');
 
 const alertController = {
   async create(req, res, next) {
     try {
-      let usersReached = req.body.usersReached;
-      if (usersReached === undefined || usersReached === null) {
-        usersReached = await User.countDocuments({ role: 'user' });
+      const { message } = req.body;
+      if (!message || !message.trim()) {
+        return sendError(res, 'Broadcast message is required', 400);
       }
 
-      const alert = await Alert.create({
-        ...req.body,
-        usersReached,
-        broadcastBy: req.user ? req.user.id : null,
-      });
-
-      emitToAll('alert:broadcast', alert);
+      const alert = await BroadcastService.createBroadcast(req.body, req.user);
       return sendSuccess(res, alert, 201);
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  async getActive(req, res, next) {
-    try {
-      const alerts = await Alert.find({ active: true }).sort({ createdAt: -1 });
-      return sendSuccess(res, alerts);
     } catch (err) {
       next(err);
     }
@@ -37,8 +20,17 @@ const alertController = {
 
   async getHistory(req, res, next) {
     try {
-      const alerts = await Alert.find({}).sort({ createdAt: -1 });
-      return sendSuccess(res, alerts);
+      const broadcasts = await BroadcastService.getHistory(req.user);
+      return sendSuccess(res, broadcasts);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getActive(req, res, next) {
+    try {
+      const activeAlerts = await BroadcastService.getActive();
+      return sendSuccess(res, activeAlerts);
     } catch (err) {
       next(err);
     }
@@ -46,76 +38,8 @@ const alertController = {
 
   async getMyAlerts(req, res, next) {
     try {
-      if (!req.user) return sendSuccess(res, []);
-      const alerts = await Alert.find({
-        $or: [
-          { targetUser: req.user.id.toString() },
-          { targetUser: null }, // global broadcasts
-        ],
-        active: true,
-      }).sort({ createdAt: -1 });
-
-      return sendSuccess(res, alerts);
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  async sendIncidentNotification(req, res, next) {
-    try {
-      const { incidentId, message, skipChat } = req.body;
-      if (!incidentId || !message) {
-        return sendError(res, 'incidentId and message are required', 400);
-      }
-
-      const incident = await Incident.findById(incidentId);
-      if (!incident) {
-        return sendError(res, 'Incident not found', 404);
-      }
-
-      const targetUserId = incident.reportedBy ? incident.reportedBy.toString() : null;
-
-      // 1. Store chat message on incident (optional)
-      if (!skipChat) {
-        const chatItem = {
-          message,
-          senderRole: 'relief_admin',
-          senderId: req.user ? req.user.id : null,
-          senderName: req.user ? req.user.name : 'Relief Center',
-          timestamp: new Date(),
-        };
-        incident.chat.push(chatItem);
-        await incident.save();
-
-        await Message.create({
-          incidentId,
-          content: message,
-          senderRole: 'relief_admin',
-          senderName: chatItem.senderName,
-          senderId: chatItem.senderId,
-        });
-
-        emitToIncident(incidentId, 'chat:message', {
-          incidentId,
-          ...chatItem,
-        });
-      }
-
-      // 2. Create targeted alert notification for the reporter
-      const alert = await Alert.create({
-        type: 'relief_center_message',
-        message: `[Relief Center] ${message}`,
-        severity: 'medium',
-        broadcastBy: req.user ? req.user.id : null,
-        targetUser: targetUserId,
-        incidentId,
-      });
-
-      if (targetUserId) {
-        emitToUser(targetUserId, 'alert:personal', alert);
-      }
-
-      return sendSuccess(res, { success: true, alert }, 201);
+      const myAlerts = await BroadcastService.getMyAlerts(req.user);
+      return sendSuccess(res, myAlerts);
     } catch (err) {
       next(err);
     }
@@ -123,15 +47,10 @@ const alertController = {
 
   async cancel(req, res, next) {
     try {
-      const alert = await Alert.findByIdAndUpdate(
-        req.params.id,
-        { $set: { active: false, cancelledAt: new Date() } },
-        { new: true }
-      );
+      const alert = await BroadcastService.cancel(req.params.id);
       if (!alert) {
         return sendError(res, 'Alert not found', 404);
       }
-      emitToAll('alert:cancelled', alert);
       return sendSuccess(res, alert);
     } catch (err) {
       next(err);
@@ -140,15 +59,44 @@ const alertController = {
 
   async update(req, res, next) {
     try {
-      const alert = await Alert.findByIdAndUpdate(
-        req.params.id,
-        { $set: req.body },
-        { new: true }
-      );
+      const alert = await BroadcastService.update(req.params.id, req.body);
       if (!alert) {
         return sendError(res, 'Alert not found', 404);
       }
       return sendSuccess(res, alert);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async sendIncidentNotification(req, res, next) {
+    try {
+      const { incidentId, title, message, priority, targetZone } = req.body;
+
+      if (!message || !message.trim()) {
+        return sendError(res, 'Notification message is required', 400);
+      }
+
+      const allUsers = await User.find({}).lean();
+      const notificationPromises = allUsers.map((user) =>
+        notificationService.createNotification({
+          title: title || 'Incident Alert',
+          message: message.trim(),
+          type: 'incident_alert',
+          priority: priority || 'medium',
+          receiver: user._id,
+          sender: req.user ? req.user.id : null,
+          relatedIncident: incidentId || null,
+          targetZone: targetZone || null,
+        })
+      );
+
+      await Promise.all(notificationPromises);
+
+      return sendSuccess(res, {
+        message: 'Notification sent successfully to all users',
+        recipientCount: allUsers.length,
+      });
     } catch (err) {
       next(err);
     }

@@ -2,11 +2,30 @@ const mongoose = require('mongoose');
 
 const alertSchema = new mongoose.Schema(
   {
+    broadcastId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    title: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     type: {
       type: String,
       required: [true, 'Alert type is required'],
-      default: 'SYSTEM BROADCAST',
+      default: 'ALERT BROADCAST',
       trim: true,
+    },
+    severity: {
+      type: String,
+      enum: ['info', 'warning', 'critical'],
+      default: 'info',
+    },
+    targetZone: {
+      type: String,
+      default: 'All Zones',
     },
     message: {
       type: String,
@@ -16,34 +35,22 @@ const alertSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    severity: {
-      type: String,
-      enum: ['info', 'medium', 'warning', 'high', 'critical', 'success', 'normal'],
-      default: 'info',
-    },
-    zone: {
-      type: String,
-      default: 'ALL SECTORS',
-    },
-    broadcastBy: {
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,
     },
-    targetUser: {
-      type: String,
-      default: null,
+    recipientCount: {
+      type: Number,
+      default: 0,
     },
-    incidentId: {
+    status: {
       type: String,
-      default: null,
+      enum: ['Delivered', 'Sending', 'Failed'],
+      default: 'Delivered',
     },
     active: {
       type: Boolean,
       default: true,
-    },
-    usersReached: {
-      type: Number,
-      default: 0,
     },
     cancelledAt: {
       type: Date,
@@ -53,7 +60,26 @@ const alertSchema = new mongoose.Schema(
   {
     timestamps: true,
     collection: 'alerts',
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// Backward-compatibility Virtual Aliases
+alertSchema.virtual('zone').get(function () {
+  return this.targetZone;
+}).set(function (v) {
+  this.targetZone = v;
+});
+
+alertSchema.virtual('broadcastBy').get(function () {
+  return this.createdBy;
+}).set(function (v) {
+  this.createdBy = v;
+});
+
+// Indexes for query performance
+alertSchema.index({ active: 1, createdAt: -1 });
+alertSchema.index({ createdBy: 1 });
 
 module.exports = mongoose.model('Alert', alertSchema);
