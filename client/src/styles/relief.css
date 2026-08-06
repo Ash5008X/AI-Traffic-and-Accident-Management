@@ -75,13 +75,31 @@
 
 /* Zone heatmap */
 .zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.zone-cell { background: rgba(31,52,72,0.3); border: 1px solid rgba(31,52,72,0.5); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; aspect-ratio: 16/9; }
-.zone-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; color: var(--nt-dim); }
-.zone-count { font-family: 'Fira Code', monospace; font-size: 20px; color: var(--nt-bright); }
+.zone-cell { background: rgba(31,52,72,0.3); border: 1px solid rgba(31,52,72,0.5); padding: 10px 12px; border-radius: 8px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; min-height: 52px; transition: all 0.2s ease; }
+.zone-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; color: var(--nt-dim); }
+.zone-count { font-family: 'Fira Code', monospace; font-size: 22px; color: var(--nt-bright); }
 
-/* Mini map placeholder */
-.mini-map { border-radius: 8px; border: 1px solid var(--nt-card-border); height: 220px; overflow: hidden; position: relative; background: var(--nt-card); display: flex; align-items: center; justify-content: center; }
-.mini-map-label { position: absolute; bottom: 8px; left: 8px; z-index: 10; font-family: 'Fira Code', monospace; font-size: 10px; color: #F97316; font-weight: 700; padding: 2px 8px; border: 1px solid rgba(249,115,22,0.3); background: var(--nt-glass); }
+/* Operational Leaflet Map */
+.operational-map-container { border-radius: 8px; border: 1px solid var(--nt-card-border); height: 320px; width: 100%; overflow: hidden; position: relative; background: #0B1320; }
+.operational-map-container .leaflet-container { width: 100%; height: 100%; background: #0B1320; font-family: 'Outfit', sans-serif; }
+.operational-map-label { position: absolute; top: 8px; left: 8px; z-index: 1000; font-family: 'Fira Code', monospace; font-size: 10px; color: #F97316; font-weight: 700; padding: 3px 8px; border: 1px solid rgba(249,115,22,0.4); background: rgba(11, 19, 32, 0.85); backdrop-filter: blur(4px); border-radius: 4px; pointer-events: none; }
+
+/* Custom Leaflet Marker Styling */
+.hub-marker-icon { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(249, 115, 22, 0.25); border: 2px solid #F97316; border-radius: 50%; box-shadow: 0 0 12px rgba(249, 115, 22, 0.6); animation: pulse-hub 2s infinite ease-in-out; }
+.hub-marker-inner { width: 12px; height: 12px; background: #F97316; border-radius: 50%; }
+
+@keyframes pulse-hub {
+  0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+  70% { box-shadow: 0 0 0 14px rgba(249, 115, 22, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+}
+
+.incident-marker-icon { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 8px currentColor; }
+
+.zone-sector-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 11px; color: #fff; background: rgba(11, 19, 32, 0.75); border: 1px solid rgba(255,255,255,0.2); padding: 1px 5px; border-radius: 3px; white-space: nowrap; pointer-events: none; text-shadow: 0 1px 2px #000; }
+
+.map-popup-custom .leaflet-popup-content-wrapper { background: #0F172A; color: #F8FAFC; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 4px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); }
+.map-popup-custom .leaflet-popup-tip { background: #0F172A; }
 
 /* Alert card (recent alerts) */
 .relief-alert-card { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--nt-card-border); background: var(--nt-card); margin-bottom: 8px; }
@@ -89,12 +107,27 @@
 .relief-alert-msg { font-family: 'Outfit', sans-serif; font-size: 12px; color: var(--nt-bright); line-height: 1.4; }
 .relief-alert-time { font-family: 'Fira Code', monospace; font-size: 9px; color: var(--nt-dim); margin-top: 4px; }
 
-/* ── Active Incidents Page ── */
+/* ── Active Incidents / Command Center Page ── */
 .relief-page-content { flex: 1; overflow-y: auto; padding: 24px; }
 .incidents-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--nt-card); border: 1px solid var(--nt-card-border); border-radius: 8px; overflow: hidden; }
 .incidents-table th { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 12px 16px; text-align: left; color: var(--nt-dim); background: var(--nt-nav-bg); border-bottom: 1px solid var(--nt-card-border); }
 .incidents-table td { padding: 12px 16px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--nt-bright); border-bottom: 1px solid rgba(31,52,72,0.2); }
 .incidents-table tr:hover td { background: rgba(31,52,72,0.1); }
+
+/* ── Incidents Command Center ── */
+.incidents-cmd-center { display: flex; flex: 1; height: calc(100vh - 64px); overflow: hidden; }
+.incidents-cmd-left { width: 24%; min-width: 280px; display: flex; flex-direction: column; border-right: 1px solid rgba(31,52,72,0.4); background: var(--nt-nav-bg); }
+.incidents-cmd-center-col { width: 52%; flex: 1; display: flex; flex-direction: column; border-right: 1px solid rgba(31,52,72,0.4); position: relative; }
+.incidents-cmd-right { width: 24%; min-width: 270px; display: flex; flex-direction: column; overflow-y: auto; padding: 16px; background: var(--nt-section-bg); }
+
+.cmd-card-item { padding: 12px 14px; border-bottom: 1px solid rgba(31,52,72,0.3); border-left: 3px solid transparent; cursor: pointer; transition: all 0.15s ease; }
+.cmd-card-item:hover { background: rgba(31,52,72,0.2); }
+.cmd-card-item.selected { background: rgba(249,115,22,0.12); border-left-color: #F97316; }
+.cmd-card-item.resolved-subdued { opacity: 0.65; }
+
+.zone-analytics-card { background: rgba(31,52,72,0.3); border: 1px solid rgba(31,52,72,0.5); padding: 12px 14px; border-radius: 8px; margin-bottom: 10px; transition: all 0.2s ease; }
+.zone-analytics-card.highest-active { border-color: rgba(255,59,48,0.7); background: rgba(255,59,48,0.12); }
+.zone-analytics-card.selected-zone { border-color: #F97316; box-shadow: 0 0 10px rgba(249,115,22,0.25); }
 
 /* ── Relief Alerts Page ── */
 .alert-composer { padding: 24px; border: 1px solid var(--nt-card-border); border-radius: 8px; background: var(--nt-card); }
@@ -119,11 +152,40 @@ textarea.composer-input { resize: vertical; min-height: 100px; }
 .team-stat strong { color: var(--nt-bright); }
 
 /* ── Reports Page (relief) ── */
-.reports-filters { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
-.reports-search { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--nt-card-border); background: var(--nt-card); color: var(--nt-bright); font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; width: 240px; }
-.reports-search:focus { border-color: #F97316; }
+.relief-page-content.reports-view { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding: 24px; box-sizing: border-box; }
+.reports-page-container { display: flex; gap: 24px; height: 100%; overflow: hidden; box-sizing: border-box; align-items: stretch; }
+.reports-left-panel { width: 25%; min-width: 260px; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; }
+.reports-right-panel { width: 75%; flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; box-sizing: border-box; }
+
+.reports-export-card { padding: 24px; border: 1px solid var(--nt-card-border); border-radius: 8px; background: var(--nt-card); height: 100%; display: flex; flex-direction: column; overflow-y: auto; box-sizing: border-box; }
+.reports-export-card h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: 0.08em; color: #F97316; margin-bottom: 4px; text-transform: uppercase; }
+.reports-export-card p { font-family: 'Outfit', sans-serif; font-size: 12px; color: var(--nt-dim); margin-bottom: 20px; }
+
+/* Toolbar styling */
+.reports-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: var(--nt-card); border: 1px solid var(--nt-card-border); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; flex-shrink: 0; }
+.reports-toolbar-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.reports-toolbar-field { display: flex; align-items: center; gap: 6px; }
+.reports-toolbar-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; color: var(--nt-dim); text-transform: uppercase; }
+.reports-toolbar-input, .reports-toolbar-select { padding: 6px 10px; border-radius: 4px; background: var(--nt-section-bg); color: var(--nt-bright); border: 1px solid var(--nt-card-border); font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; height: 32px; }
+.reports-toolbar-input:focus, .reports-toolbar-select:focus { border-color: #F97316; }
+
+.unified-search-wrap { display: flex; align-items: center; }
+.unified-search-input { padding: 6px 12px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: var(--nt-section-bg); color: var(--nt-bright); border: 1px solid var(--nt-card-border); border-right: none; font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; width: 140px; height: 32px; }
+.unified-search-input:focus { border-color: #F97316; }
+.unified-search-btn { display: flex; align-items: center; justify-content: center; height: 32px; width: 36px; background: #F97316; color: #fff; border: 1px solid #F97316; border-top-right-radius: 4px; border-bottom-right-radius: 4px; cursor: pointer; transition: background 0.15s ease; }
+.unified-search-btn:hover { background: #EA6A0A; }
+
+/* Independent Table Scroll Container */
+.reports-table-container { flex: 1; overflow-y: auto; background: var(--nt-card); border: 1px solid var(--nt-card-border); border-radius: 8px; }
+.reports-table-container .incidents-table { border: none; border-radius: 0; }
+.reports-table-container .incidents-table th { position: sticky; top: 0; z-index: 10; background: var(--nt-nav-bg); box-shadow: 0 1px 0 var(--nt-card-border); }
 
 @media (max-width: 960px) {
   .relief-main { flex-direction: column; }
   .relief-col-left, .relief-col-center, .relief-col-right { width: 100%; border-right: none; border-bottom: 1px solid rgba(31,52,72,0.3); }
+  .relief-page-content.reports-view { height: auto; overflow-y: auto; }
+  .reports-page-container { flex-direction: column; height: auto; overflow: visible; }
+  .reports-left-panel, .reports-right-panel { width: 100%; height: auto; overflow: visible; }
+  .reports-export-card { height: auto; overflow: visible; }
+  .reports-table-container { max-height: 500px; }
 }

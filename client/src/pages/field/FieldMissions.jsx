@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatLocation } from '../../utils/formatters';
 import { getSeverityClass } from '../../utils/severity';
 import '../../styles/field.css';
 
@@ -52,7 +52,7 @@ export default function FieldMissions() {
               return (
                 <tr key={m._id}>
                   <td style={{ fontFamily: 'Fira Code, monospace', color: 'var(--nt-dim)' }}>
-                    #{m._id?.slice(-6).toUpperCase()}
+                    #{m.incidentId || m._id}
                   </td>
                   <td style={{ fontWeight: 600 }}>{m.type || m.title}</td>
                   <td>
@@ -71,7 +71,7 @@ export default function FieldMissions() {
                       {m.severity || 'normal'}
                     </span>
                   </td>
-                  <td>{m.zone || m.location?.address || 'Sector N'}</td>
+                  <td>{m.zone || formatLocation(m.location)}</td>
                   <td style={{ textTransform: 'uppercase', color: m.status === 'resolved' ? '#34C759' : '#F97316' }}>
                     {m.status}
                   </td>

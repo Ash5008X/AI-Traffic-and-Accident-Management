@@ -20,7 +20,7 @@ export const NAV_BY_ROLE = {
   ],
   relief_admin: [
     { label: 'Dashboard', path: '/relief/dashboard', icon: 'dashboard' },
-    { label: 'Active Incidents', path: '/relief/incidents', icon: 'crisis_alert' },
+    { label: 'Incidents', path: '/relief/incidents', icon: 'crisis_alert' },
     { label: 'Alerts', path: '/relief/alerts', icon: 'campaign' },
     { label: 'Reports', path: '/relief/reports', icon: 'assessment' },
     { label: 'Teams', path: '/relief/teams', icon: 'groups' },
@@ -39,9 +39,6 @@ export const INCIDENT_TYPES = ['Congestion', 'Medical', 'Accident'];
 export const SEVERITY_LEVELS = ['low', 'medium', 'high', 'critical'];
 
 // Status flow steps
-export const STATUS_STEPS = ['pending', 'assigned', 'en_route', 'resolved'];
-export const STATUS_STEP_LABELS = ['Pending', 'Assigned', 'En Route', 'Resolved'];
-export const STATUS_STEP_ICONS = ['check', 'check', 'directions_car', 'task_alt'];
-
-// Relief center location (for zone calculations)
-export const CENTER_LOC = { lat: 31.264905, lng: 75.700219 };
+export const STATUS_STEPS = ['pending', 'en_route', 'resolved'];
+export const STATUS_STEP_LABELS = ['Pending', 'En Route', 'Resolved'];
+export const STATUS_STEP_ICONS = ['schedule', 'directions_car', 'task_alt'];

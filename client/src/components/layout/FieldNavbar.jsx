@@ -1,13 +1,18 @@
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { NAV_BY_ROLE } from '../../utils/constants';
 import Icon from '../common/Icon';
+import NotificationDropdown from '../common/NotificationDropdown';
 import './Navbar.css';
 
 export default function FieldNavbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount } = useNotifications();
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const navItems = NAV_BY_ROLE.field_unit;
 
   const initials = user?.name
@@ -38,9 +43,21 @@ export default function FieldNavbar() {
       </div>
 
       <div className="relief-navbar-right">
-        <button className="icon-btn" title="Notifications">
-          <Icon name="notifications" style={{ color: 'var(--nt-dim)' }} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button 
+            className="icon-btn" 
+            title="Notifications"
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+          >
+            <Icon name="notifications" style={{ color: 'var(--nt-dim)' }} />
+            {unreadCount > 0 && (
+              <span className="notif-badge">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+          <NotificationDropdown isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+        </div>
 
         <button className="theme-btn" onClick={toggleTheme} title="Toggle theme">
           <Icon name={theme === 'dark' ? 'light_mode' : 'dark_mode'} />

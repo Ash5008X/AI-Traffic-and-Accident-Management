@@ -6,7 +6,7 @@ export default function IncidentQueue({ incidents, selectedId, onSelect, filter,
   const filtered = incidents.filter((inc) => {
     if (filter === 'all') return true;
     if (filter === 'critical') return inc.severity === 'critical';
-    if (filter === 'active') return ['pending', 'assigned', 'en_route'].includes(inc.status);
+    if (filter === 'active') return ['pending', 'en_route', 'dispatched'].includes(inc.status);
     return true;
   });
 
@@ -15,7 +15,7 @@ export default function IncidentQueue({ incidents, selectedId, onSelect, filter,
   return (
     <div className="relief-col-left">
       <div className="queue-header">
-        <span className="queue-title">INCIDENT_QUEUE</span>
+        <span className="queue-title">INCIDENT QUEUE // 1-HR LOGS ({filtered.length})</span>
         {newCount > 0 && <span className="new-badge">{newCount} NEW</span>}
       </div>
 
@@ -55,7 +55,7 @@ export default function IncidentQueue({ incidents, selectedId, onSelect, filter,
           filtered.map((inc) => {
             const isSelected = selectedId === inc._id;
             const sevClass = getSeverityClass(inc.severity);
-            const shortId = inc._id ? inc._id.slice(-6).toUpperCase() : '000000';
+            const displayId = inc.incidentId || inc._id || 'UNKNOWN';
 
             return (
               <div
@@ -72,7 +72,7 @@ export default function IncidentQueue({ incidents, selectedId, onSelect, filter,
                 onClick={() => onSelect(inc)}
               >
                 <div className="inc-card-top">
-                  <span className="inc-card-id">#{shortId} // {inc.zone || 'GEN'}</span>
+                  <span className="inc-card-id">{displayId} // {inc.zone || 'GEN'}</span>
                   <span className="inc-card-time">{timeAgo(inc.createdAt)}</span>
                 </div>
                 <div className="inc-card-title">{inc.type || inc.title || 'Incident'}</div>

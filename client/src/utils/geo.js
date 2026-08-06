@@ -1,7 +1,6 @@
 /**
  * Geospatial utilities — consolidates from user_alerts.js
  */
-import { CENTER_LOC } from './constants';
 
 /**
  * Calculates distance between two points using Haversine formula.
@@ -36,17 +35,22 @@ export function getBearing(lat1, lon1, lat2, lon2) {
 
 /**
  * Maps coordinates to a sector zone (A-F) based on bearing from center.
+ * Center coordinates must be passed explicitly from caller.
  */
-export function getZone(lat, lng, center = CENTER_LOC) {
+export function getZone(lat, lng, center) {
+  if (!center || center.lat == null || center.lng == null) {
+    return 'Zone A';
+  }
   const bearing = getBearing(center.lat, center.lng, lat, lng);
   const idx = Math.floor(bearing / 60);
-  return String.fromCharCode(65 + idx);
+  return `Zone ${String.fromCharCode(65 + Math.min(idx, 5))}`;
 }
 
 /**
  * Returns neighbor zones for a given zone.
  */
 export function getNeighborZones(zone) {
+  const z = zone?.replace('Zone ', '') || 'A';
   const map = {
     A: ['F', 'B'],
     B: ['A', 'C'],
@@ -55,5 +59,5 @@ export function getNeighborZones(zone) {
     E: ['D', 'F'],
     F: ['E', 'A'],
   };
-  return map[zone] || [];
+  return (map[z] || []).map((item) => `Zone ${item}`);
 }

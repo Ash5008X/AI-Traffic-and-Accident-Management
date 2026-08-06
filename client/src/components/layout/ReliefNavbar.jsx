@@ -1,14 +1,18 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { NAV_BY_ROLE } from '../../utils/constants';
-import { useState, useEffect } from 'react';
 import Icon from '../common/Icon';
+import NotificationDropdown from '../common/NotificationDropdown';
 import './Navbar.css';
 
 export default function ReliefNavbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount } = useNotifications();
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const navItems = NAV_BY_ROLE.relief_admin;
 
   const firstName = user?.firstName || (user?.name ? user.name.split(' ')[0] : 'Admin');
@@ -57,9 +61,21 @@ export default function ReliefNavbar() {
           {clock}
         </div>
 
-        <button className="icon-btn" title="Notifications" style={{ position: 'relative' }}>
-          <Icon name="notifications" style={{ color: 'var(--nt-dim)' }} />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button 
+            className="icon-btn" 
+            title="Notifications"
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+          >
+            <Icon name="notifications" style={{ color: 'var(--nt-dim)' }} />
+            {unreadCount > 0 && (
+              <span className="notif-badge">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+          <NotificationDropdown isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+        </div>
 
         <div className="relief-user-profile">
           <span className="outfit" style={{ fontSize: '14px', fontWeight: 600, color: 'var(--nt-bright)' }}>

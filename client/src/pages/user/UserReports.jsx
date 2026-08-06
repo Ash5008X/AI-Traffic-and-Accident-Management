@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
+import socketManager from '../../services/socket';
 import Icon from '../../components/common/Icon';
-import { timeAgo, formatDate } from '../../utils/formatters';
+import { formatDate, timeAgo, formatLocation } from '../../utils/formatters';
 import { getSeverityClass, getStatusClass } from '../../utils/severity';
 import { STATUS_STEPS, STATUS_STEP_LABELS, STATUS_STEP_ICONS } from '../../utils/constants';
 import '../../styles/user.css';
@@ -12,12 +13,7 @@ export default function UserReports() {
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState(null);
 
-  useEffect(() => {
-    loadReports();
-  }, []);
-
-  const loadReports = async () => {
-    setLoading(true);
+  const loadReports = useCallback(async () => {
     try {
       const data = await api.get('/incidents?reportedBy=me');
       setReports(Array.isArray(data) ? data : []);
@@ -26,9 +22,21 @@ export default function UserReports() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const activeReports = reports.filter((r) => ['pending', 'assigned', 'en_route'].includes(r.status));
+  useEffect(() => {
+    loadReports();
+
+    socketManager.on('incident:updated', loadReports);
+    socketManager.on('incident:new', loadReports);
+
+    return () => {
+      socketManager.off('incident:updated', loadReports);
+      socketManager.off('incident:new', loadReports);
+    };
+  }, [loadReports]);
+
+  const activeReports = reports.filter((r) => ['pending', 'en_route', 'dispatched'].includes(r.status));
   const pastReports = reports.filter((r) => ['resolved', 'dismissed'].includes(r.status));
   const total = reports.length;
   const resolved = pastReports.filter((r) => r.status === 'resolved').length;
@@ -83,10 +91,10 @@ export default function UserReports() {
                   onClick={() => selectReport(report)}
                 >
                   <div className="report-card-top">
-                    <span className="ticket-id">TICKET #{report._id?.slice(-6).toUpperCase()}</span>
+                    <span className="ticket-id">TICKET #{report.incidentId || report._id}</span>
                     <span className={`status-badge ${getStatusClass(report.status)}`}>{report.status}</span>
                   </div>
-                  <div className="report-title">{report.type || report.title} — {report.location?.address || 'Unknown'}</div>
+                  <div className="report-title">{report.type || report.title} — {formatLocation(report.location)}</div>
                   <div className="report-meta">
                     <span className="meta-item">{report.severity?.toUpperCase()}</span>
                     <span className="meta-item muted">{timeAgo(report.createdAt)}</span>
@@ -143,11 +151,13 @@ export default function UserReports() {
               filteredPast.map((report) => (
                 <div className="past-row" key={report._id} onClick={() => selectReport(report)}>
                   <div className="past-row-main">
-                    <span className="past-row-id">#{report._id?.slice(-6).toUpperCase()}</span>
+                    <span className="past-row-id">#{report.incidentId || report._id}</span>
                     <span className="past-row-title">{report.type || report.title}</span>
                   </div>
                   <span className="past-row-date">{timeAgo(report.createdAt)}</span>
-                  <span className={`past-pill ${report.status}`}>{report.status}</span>
+                  <span className={`past-pill ${report.status}`}>
+                    {report.status === 'dismissed' ? 'Dismissed (False Alarm)' : report.status}
+                  </span>
                 </div>
               ))
             )}
@@ -173,9 +183,9 @@ export default function UserReports() {
             </div>
             <div className="detail-body">
               <div className="detail-ticket-row">
-                <span className="detail-ticket-id">TICKET #{selected._id?.slice(-6).toUpperCase()}</span>
+                <span className="detail-ticket-id">TICKET #{selected.incidentId || selected._id}</span>
               </div>
-              <div className="detail-title">{selected.type || selected.title} — {selected.location?.address || 'Unknown'}</div>
+              <div className="detail-title">{selected.type || selected.title} — {formatLocation(selected.location)}</div>
               <div className="detail-coords">
                 <Icon name="location_on" size={14} />
                 {selected.location?.lat?.toFixed(4)}° N, {selected.location?.lng?.toFixed(4)}° E

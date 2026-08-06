@@ -1,5 +1,5 @@
 import Icon from '../common/Icon';
-import { timeAgo } from '../../utils/formatters';
+import { timeAgo, formatLocation } from '../../utils/formatters';
 import { getSeverityClass } from '../../utils/severity';
 
 export default function NearbyAlerts({ incidents, userId }) {
@@ -9,7 +9,7 @@ export default function NearbyAlerts({ incidents, userId }) {
       (inc) =>
         inc.reportedBy !== userId &&
         inc.location &&
-        ['pending', 'assigned', 'en_route'].includes(inc.status)
+        ['pending', 'en_route', 'dispatched'].includes(inc.status)
     )
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
@@ -39,10 +39,10 @@ export default function NearbyAlerts({ incidents, userId }) {
                 <div className={`ar-bar`} style={{ background: `var(--${sevClass === 'critical' ? 'critical' : sevClass === 'warning' ? 'warning' : 'info'})` }} />
                 <div className="ar-content">
                   <div className="ar-title">
-                    {inc.type} — {inc.location?.address || 'Unknown'}
+                    {inc.type} — {formatLocation(inc.location)}
                   </div>
                   <div className="ar-meta">
-                    <span className="ar-ref">{inc._id?.slice(-6).toUpperCase()}</span>
+                    <span className="ar-ref">{inc.incidentId || inc._id}</span>
                     <span className="ar-sep" />
                     <span className="ar-dist">{timeAgo(inc.createdAt)}</span>
                   </div>

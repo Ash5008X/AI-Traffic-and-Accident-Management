@@ -1,13 +1,18 @@
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { NAV_BY_ROLE } from '../../utils/constants';
 import Icon from '../common/Icon';
+import NotificationDropdown from '../common/NotificationDropdown';
 import './Navbar.css';
 
 export default function UserNavbar() {
   const { user, logout, getDashboardPath } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount } = useNotifications();
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const navItems = NAV_BY_ROLE.user;
 
   const initials = user?.name
@@ -46,10 +51,21 @@ export default function UserNavbar() {
           <input className="search-input" type="text" placeholder="Search incidents…" />
         </div>
 
-        <button className="icon-btn" title="Notifications">
-          <Icon name="notifications" />
-          <span className="notif-dot" />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button 
+            className="icon-btn" 
+            title="Notifications"
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+          >
+            <Icon name="notifications" />
+            {unreadCount > 0 && (
+              <span className="notif-badge">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+          <NotificationDropdown isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+        </div>
 
         <div className="divider-v" />
 

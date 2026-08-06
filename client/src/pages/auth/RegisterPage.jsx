@@ -11,11 +11,54 @@ const ROLES = [
   { value: 'field_unit', label: 'Field Unit', icon: 'directions_car' },
 ];
 
+/**
+ * Wraps the browser Geolocation API in a Promise for async/await usage.
+ * Resolves with { latitude, longitude } or rejects with a user-friendly error.
+ */
+function requestBrowserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Your browser does not support geolocation. Please use a modern browser.'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (err) => {
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            reject(new Error('Location permission is required to register a Relief Center.'));
+            break;
+          case err.POSITION_UNAVAILABLE:
+            reject(new Error('Unable to determine your location. Please check your device settings.'));
+            break;
+          case err.TIMEOUT:
+            reject(new Error('Location request timed out. Please try again.'));
+            break;
+          default:
+            reject(new Error('An unexpected error occurred while detecting your location.'));
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  });
+}
+
 export default function RegisterPage() {
   const { register, getDashboardPath } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'user' });
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [error, setError] = useState('');
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -27,9 +70,27 @@ export default function RegisterPage() {
       setError('Password must be at least 6 characters.');
       return;
     }
+
+    let payload = { ...form };
+
+    // For relief_admin, acquire GPS coordinates before registration
+    if (form.role === 'relief_admin') {
+      setLocating(true);
+      try {
+        const coords = await requestBrowserLocation();
+        payload.latitude = coords.latitude;
+        payload.longitude = coords.longitude;
+      } catch (locErr) {
+        setError(locErr.message);
+        setLocating(false);
+        return;
+      }
+      setLocating(false);
+    }
+
     setLoading(true);
     try {
-      const data = await register(form);
+      const data = await register(payload);
       navigate(getDashboardPath(data?.user?.role || form.role));
     } catch (err) {
       setError(err.message || 'Registration failed.');
@@ -37,6 +98,8 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  const isSubmitting = loading || locating;
 
   return (
     <div className="auth-card">
@@ -103,8 +166,24 @@ export default function RegisterPage() {
           </div>
         </fieldset>
 
-        <button className="primary-btn" type="submit" disabled={loading}>
-          {loading ? 'Creating Account...' : 'Create Account'}
+        {/* Location notice for Relief Admin */}
+        {form.role === 'relief_admin' && (
+          <div className={`location-status ${locating ? 'detecting' : ''}`}>
+            <Icon name={locating ? 'my_location' : 'info'} />
+            <span>
+              {locating
+                ? 'Detecting your location...'
+                : 'Your current GPS location will be used as the Relief Center location.'}
+            </span>
+          </div>
+        )}
+
+        <button className="primary-btn" type="submit" disabled={isSubmitting}>
+          {locating
+            ? 'Detecting Location...'
+            : loading
+              ? 'Creating Account...'
+              : 'Create Account'}
         </button>
       </form>
 

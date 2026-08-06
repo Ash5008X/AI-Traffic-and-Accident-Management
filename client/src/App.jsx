@@ -2,6 +2,8 @@ import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { ToastProvider } from './components/common/ToastContext';
 import socketManager from './services/socket';
 
 // Layouts
@@ -86,69 +88,73 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <SocketConnector />
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              {/* Root redirect */}
-              <Route path="/" element={<DefaultRedirect />} />
+        <ToastProvider>
+          <NotificationProvider>
+            <BrowserRouter>
+              <SocketConnector />
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                  {/* Root redirect */}
+                  <Route path="/" element={<DefaultRedirect />} />
 
-              {/* Auth routes */}
-              <Route element={<AuthLayout />}>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              </Route>
+                  {/* Auth routes */}
+                  <Route element={<AuthLayout />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                  </Route>
 
-              {/* User routes */}
-              <Route element={<ProtectedRoute allowedRoles={['user']} />}>
-                <Route element={<UserLayout />}>
-                  <Route path="/dashboard" element={<UserDashboard />} />
-                  <Route path="/reports" element={<UserReports />} />
-                  <Route path="/alerts" element={<UserAlerts />} />
-                  <Route path="/profile" element={<UserProfile />} />
-                  {/* Backward-compatibility aliases */}
-                  <Route path="/user/dashboard" element={<UserDashboard />} />
-                  <Route path="/user/reports" element={<UserReports />} />
-                  <Route path="/user/alerts" element={<UserAlerts />} />
-                  <Route path="/user/profile" element={<UserProfile />} />
-                </Route>
-              </Route>
+                  {/* User routes */}
+                  <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+                    <Route element={<UserLayout />}>
+                      <Route path="/dashboard" element={<UserDashboard />} />
+                      <Route path="/reports" element={<UserReports />} />
+                      <Route path="/alerts" element={<UserAlerts />} />
+                      <Route path="/profile" element={<UserProfile />} />
+                      {/* Backward-compatibility aliases */}
+                      <Route path="/user/dashboard" element={<UserDashboard />} />
+                      <Route path="/user/reports" element={<UserReports />} />
+                      <Route path="/user/alerts" element={<UserAlerts />} />
+                      <Route path="/user/profile" element={<UserProfile />} />
+                    </Route>
+                  </Route>
 
-              {/* Relief Admin routes */}
-              <Route element={<ProtectedRoute allowedRoles={['relief_admin']} />}>
-                <Route element={<ReliefLayout />}>
-                  <Route path="/relief/dashboard" element={<ReliefDashboard />} />
-                  <Route path="/relief/incidents" element={<ActiveIncidentsPage />} />
-                  <Route path="/relief/alerts" element={<ReliefAlertsPage />} />
-                  <Route path="/relief/reports" element={<ReliefReportsPage />} />
-                  <Route path="/relief/teams" element={<ReliefTeamsPage />} />
-                  {/* Backward-compatibility aliases */}
-                  <Route path="/relief-center/dashboard" element={<ReliefDashboard />} />
-                  <Route path="/relief-center/active-incidents" element={<ActiveIncidentsPage />} />
-                  <Route path="/relief-center/alerts" element={<ReliefAlertsPage />} />
-                  <Route path="/relief-center/reports" element={<ReliefReportsPage />} />
-                  <Route path="/relief-center/teams" element={<ReliefTeamsPage />} />
-                </Route>
-              </Route>
+                  {/* Relief Admin routes */}
+                  <Route element={<ProtectedRoute allowedRoles={['relief_admin']} />}>
+                    <Route element={<ReliefLayout />}>
+                      <Route path="/relief/dashboard" element={<ReliefDashboard />} />
+                      <Route path="/relief/incidents" element={<ActiveIncidentsPage />} />
+                      <Route path="/relief/alerts" element={<ReliefAlertsPage />} />
+                      <Route path="/relief/reports" element={<ReliefReportsPage />} />
+                      <Route path="/relief/teams" element={<ReliefTeamsPage />} />
+                      {/* Backward-compatibility aliases */}
+                      <Route path="/relief-center/dashboard" element={<ReliefDashboard />} />
+                      <Route path="/relief-center/active-incidents" element={<ActiveIncidentsPage />} />
+                      <Route path="/relief-center/alerts" element={<ReliefAlertsPage />} />
+                      <Route path="/relief-center/reports" element={<ReliefReportsPage />} />
+                      <Route path="/relief-center/teams" element={<ReliefTeamsPage />} />
+                    </Route>
+                  </Route>
 
-              {/* Field Unit routes */}
-              <Route element={<ProtectedRoute allowedRoles={['field_unit']} />}>
-                <Route element={<FieldLayout />}>
-                  <Route path="/field/mission" element={<FieldDashboard />} />
-                  <Route path="/field/incidents" element={<FieldMissions />} />
-                  <Route path="/field/dashboard" element={<FieldDashboard />} />
-                  <Route path="/field/missions" element={<FieldMissions />} />
-                  <Route path="/field/alerts" element={<FieldAlerts />} />
-                  <Route path="/field/profile" element={<FieldProfile />} />
-                </Route>
-              </Route>
+                  {/* Field Unit routes */}
+                  <Route element={<ProtectedRoute allowedRoles={['field_unit']} />}>
+                    <Route element={<FieldLayout />}>
+                      <Route path="/field/mission" element={<FieldDashboard />} />
+                      <Route path="/field/incidents" element={<FieldMissions />} />
+                      <Route path="/field/dashboard" element={<FieldDashboard />} />
+                      <Route path="/field/missions" element={<FieldMissions />} />
+                      <Route path="/field/alerts" element={<FieldAlerts />} />
+                      <Route path="/field/profile" element={<FieldProfile />} />
+                    </Route>
+                  </Route>
 
-              {/* Catch all redirect */}
-              <Route path="*" element={<DefaultRedirect />} />
-            </Routes>
-          </Suspense>
-          <MobileNavWrapper />
-        </BrowserRouter>
+                  {/* Catch all redirect */}
+                  <Route path="*" element={<DefaultRedirect />} />
+                </Routes>
+              </Suspense>
+              <MobileNavWrapper />
+            </BrowserRouter>
+          </NotificationProvider>
+        </ToastProvider>
       </AuthProvider>
     </ThemeProvider>
   );

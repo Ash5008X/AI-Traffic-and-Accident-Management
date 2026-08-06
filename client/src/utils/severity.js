@@ -34,8 +34,8 @@ export function severityColor(severity) {
 export function getStatusClass(status) {
   switch (status?.toLowerCase()) {
     case 'pending': return 'pending';
-    case 'assigned': return 'in-progress';
-    case 'en_route': return 'en-route';
+    case 'en_route':
+    case 'dispatched': return 'en-route';
     case 'resolved': return 'resolved';
     case 'dismissed': return 'dismissed';
     default: return 'pending';

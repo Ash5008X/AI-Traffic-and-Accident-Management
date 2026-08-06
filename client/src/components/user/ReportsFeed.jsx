@@ -1,5 +1,5 @@
 import Icon from '../common/Icon';
-import { timeAgo } from '../../utils/formatters';
+import { timeAgo, formatLocation } from '../../utils/formatters';
 import { getSeverityClass } from '../../utils/severity';
 
 export default function ReportsFeed({ reports, loading }) {
@@ -30,7 +30,7 @@ export default function ReportsFeed({ reports, loading }) {
                 <div className={`sev-bar ${sevClass}`} />
                 <div className="feed-row-main">
                   <div className="feed-row-title">
-                    {report.type || report.title} — {report.location?.address || 'Unknown Location'}
+                    {report.type || report.title} — {formatLocation(report.location)}
                   </div>
                   <div className="feed-row-body">{report.description || 'No description.'}</div>
                   <div className="feed-row-tags">

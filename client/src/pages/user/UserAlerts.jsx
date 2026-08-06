@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Icon from '../../components/common/Icon';
-import { formatTimeUTC } from '../../utils/formatters';
+import { formatTimeUTC, formatLocation } from '../../utils/formatters';
 import { categorizeType, getTypeColor } from '../../utils/severity';
 import { haversine, getZone, getNeighborZones } from '../../utils/geo';
 import '../../styles/user.css';
@@ -74,7 +74,7 @@ export default function UserAlerts() {
     }
   };
 
-  const activeAlerts = alerts.filter((r) => ['pending', 'assigned', 'en_route'].includes(r.status));
+  const activeAlerts = alerts.filter((r) => ['pending', 'en_route', 'dispatched'].includes(r.status));
   const pastAlerts = alerts.filter((r) => ['resolved', 'dismissed'].includes(r.status));
 
   // Stats (today)
@@ -128,7 +128,7 @@ export default function UserAlerts() {
               return (
                 <div className={`alert-card accent-${cat}`} key={alert._id} onClick={() => setSelected(alert)}>
                   <span className={`alert-type-badge badge-${cat}`}>{alert.type}</span>
-                  <div className="alert-card-title">{alert.type} — {alert.location?.address || 'Unknown'}</div>
+                  <div className="alert-card-title">{alert.type} — {formatLocation(alert.location)}</div>
                   <div className="alert-sector" style={{ color: getTypeColor(cat) }}>
                     Priority {alert.severity || 'Normal'} // System
                   </div>
@@ -160,7 +160,7 @@ export default function UserAlerts() {
                 return (
                   <div className="cleared-row" key={alert._id} onClick={() => setSelected(alert)}>
                     <div>
-                      <div className="cleared-title">{alert.type} — {alert.location?.address || 'Unknown'}</div>
+                      <div className="cleared-title">{alert.type} — {formatLocation(alert.location)}</div>
                       <div className="cleared-meta">
                         <span className="cleared-status" style={{ color: isDismissed ? 'var(--text-muted)' : 'var(--success)' }}>
                           {isDismissed ? 'Dismissed' : 'Cleared_Success'}
@@ -201,7 +201,7 @@ export default function UserAlerts() {
                 {(selected.type || 'System').toUpperCase()}_{(selected.severity || 'Normal').toUpperCase()}
               </span>
               <div className="detail-ref">INCIDENT_LOG // {selected.incidentId || 'SYS-000'}</div>
-              <div className="detail-headline">{selected.type} — {selected.location?.address || 'Unknown'}</div>
+              <div className="detail-headline">{selected.type} — {formatLocation(selected.location)}</div>
               <div className="detail-coords">
                 {selected.location?.lat || 0}° N, {selected.location?.lng || 0}° W
               </div>

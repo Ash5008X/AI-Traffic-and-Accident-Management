@@ -20,21 +20,36 @@ export function timeAgo(dateStr) {
 }
 
 /**
- * Formats a date into 'YYYY-MM-DD · HH:MM:SS UTC' format.
+ * Formats a date into 'DD MMM YYYY · HH:MM A IST' format using Indian Standard Time.
  */
 export function formatDate(dateStr) {
   if (!dateStr) return '---';
-  const date = new Date(dateStr);
-  return `${date.toISOString().split('T')[0]} · ${date.toISOString().split('T')[1].substring(0, 8)} UTC`;
+  try {
+    const formatter = new Intl.DateTimeFormat('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'medium',
+      timeZone: 'Asia/Kolkata',
+    });
+    return formatter.format(new Date(dateStr)) + ' IST';
+  } catch (e) {
+    return dateStr;
+  }
 }
 
 /**
- * Formats a date into time-only 'HH:MM:SS UTC' format.
+ * Formats a date into time-only 'HH:MM:SS A IST' format.
  */
 export function formatTimeUTC(dateStr) {
   if (!dateStr) return '---';
-  const d = new Date(dateStr);
-  return `${d.toISOString().split('T')[1].substring(0, 8)} UTC`;
+  try {
+    const formatter = new Intl.DateTimeFormat('en-IN', {
+      timeStyle: 'medium',
+      timeZone: 'Asia/Kolkata',
+    });
+    return formatter.format(new Date(dateStr)) + ' IST';
+  } catch (e) {
+    return dateStr;
+  }
 }
 
 /**
@@ -72,4 +87,31 @@ export function tacticalTimeAgo(dateStr) {
  */
 export function padZero(n, len = 2) {
   return String(n).padStart(len, '0');
+}
+
+/**
+ * Formats a location object for display.
+ * Uses address if available, falls back to coordinates, then to 'Unknown Location'.
+ */
+export function formatLocation(location) {
+  if (location?.address) return location.address;
+  if (location?.lat != null && location?.lng != null) {
+    const latPrefix = location.lat >= 0 ? 'N' : 'S';
+    const lngPrefix = location.lng >= 0 ? 'E' : 'W';
+    return `${Math.abs(location.lat).toFixed(4)}° ${latPrefix}, ${Math.abs(location.lng).toFixed(4)}° ${lngPrefix}`;
+  }
+  return 'Unknown Location';
+}
+
+/**
+ * Standardizes zone string format to full 'Zone X' (e.g. 'Zone A', 'Zone B').
+ */
+export function formatZone(zone) {
+  if (!zone) return 'Zone A';
+  const str = String(zone).trim();
+  if (str.startsWith('Zone ')) return str;
+  if (str.length === 1 && str.toUpperCase() >= 'A' && str.toUpperCase() <= 'F') {
+    return `Zone ${str.toUpperCase()}`;
+  }
+  return `Zone ${str}`;
 }

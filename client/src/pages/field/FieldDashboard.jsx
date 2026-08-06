@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Icon from '../../components/common/Icon';
-import { formatDate, formatTimeUTC } from '../../utils/formatters';
+import { formatDate, formatTimeUTC, formatLocation } from '../../utils/formatters';
 import { getSeverityClass } from '../../utils/severity';
 import '../../styles/field.css';
 
@@ -24,7 +24,7 @@ export default function FieldDashboard() {
     try {
       const data = await api.get('/incidents').catch(() => []);
       const active = (Array.isArray(data) ? data : []).filter((inc) =>
-        ['pending', 'assigned', 'en_route'].includes(inc.status)
+        ['pending', 'en_route', 'dispatched'].includes(inc.status)
       );
       setMissions(active);
       if (!selectedId && active.length > 0) {
@@ -107,7 +107,7 @@ export default function FieldDashboard() {
                   onClick={() => setSelectedId(inc._id)}
                 >
                   <div className="mission-card-top">
-                    <span className="mission-id">#{inc._id?.slice(-6).toUpperCase()}</span>
+                    <span className="mission-id">#{inc.incidentId || inc._id}</span>
                     <span
                       className="mission-status-badge"
                       style={{
@@ -122,7 +122,7 @@ export default function FieldDashboard() {
                   <div className="mission-title">{inc.type || inc.title}</div>
                   <div className="mission-loc">
                     <Icon name="location_on" size={14} style={{ verticalAlign: 'middle' }} />
-                    {inc.zone || inc.location?.address || 'Sector Grid'}
+                    {inc.zone || formatLocation(inc.location)}
                   </div>
                 </div>
               );
@@ -145,7 +145,7 @@ export default function FieldDashboard() {
             <div className="mission-detail-header">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontFamily: 'Fira Code, monospace', fontSize: 12, color: 'var(--nt-dim)' }}>
-                  MISSION #{selectedMission._id?.slice(-6).toUpperCase()} // {selectedMission.zone || 'GEN'}
+                  MISSION #{selectedMission.incidentId || selectedMission._id} // {selectedMission.zone || 'GEN'}
                 </span>
                 <span style={{ fontFamily: 'Fira Code, monospace', fontSize: 13, fontWeight: 700, color: '#F97316' }}>
                   {selectedMission.status?.toUpperCase()}

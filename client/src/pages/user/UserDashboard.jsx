@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import socketManager from '../../services/socket';
 import HeroCard from '../../components/user/HeroCard';
 import ReportsFeed from '../../components/user/ReportsFeed';
 import ActiveReportMonitor from '../../components/user/ActiveReportMonitor';
@@ -15,12 +16,7 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = useCallback(async () => {
     try {
       const [myReports, allIncidents] = await Promise.all([
         api.get('/incidents?reportedBy=me').catch(() => []),
@@ -33,10 +29,22 @@ export default function UserDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+
+    socketManager.on('incident:updated', loadData);
+    socketManager.on('incident:new', loadData);
+
+    return () => {
+      socketManager.off('incident:updated', loadData);
+      socketManager.off('incident:new', loadData);
+    };
+  }, [loadData]);
 
   const activeReport = reports.find((r) =>
-    ['pending', 'assigned', 'en_route'].includes(r.status)
+    ['pending', 'en_route', 'dispatched'].includes(r.status)
   );
 
   return (

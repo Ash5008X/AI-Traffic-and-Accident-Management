@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import socketManager from '../../services/socket';
 import IncidentQueue from '../../components/relief/IncidentQueue';
 import IncidentDetailPanel from '../../components/relief/IncidentDetailPanel';
 import ZoneHeatmap from '../../components/relief/ZoneHeatmap';
+import OperationalMap from '../../components/relief/OperationalMap';
 import { formatTimeUTC } from '../../utils/formatters';
-import { getZone } from '../../utils/geo';
 import '../../styles/relief.css';
 
 export default function ReliefDashboard() {
@@ -15,39 +16,54 @@ export default function ReliefDashboard() {
   const [filter, setFilter] = useState('all');
   const [messages, setMessages] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [activeCount, setActiveCount] = useState(0);
+  const [criticalCount, setCriticalCount] = useState(0);
+  const [zoneAnalytics, setZoneAnalytics] = useState(null);
+  const [mapIncidents, setMapIncidents] = useState([]);
+  const [reliefCenter, setReliefCenter] = useState(null);
 
-  useEffect(() => {
-    loadData();
-    const id = setInterval(loadData, 10000);
-    return () => clearInterval(id);
-  }, []);
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
-      const [incRes, alertsRes] = await Promise.all([
-        api.get('/incidents').catch(() => []),
-        api.get('/alerts').catch(() => []),
-      ]);
-
-      const incList = Array.isArray(incRes) ? incRes : [];
-      // Annotate zone if not present
-      incList.forEach((inc) => {
-        if (!inc.zone && inc.location?.lat) {
-          inc.zone = getZone(inc.location.lat, inc.location.lng);
+      const data = await api.get('/incidents/relief-dashboard');
+      if (data) {
+        const queueList = Array.isArray(data.queue) ? data.queue : [];
+        setIncidents(queueList);
+        setActiveCount(data.activeCount ?? 0);
+        setCriticalCount(data.criticalCount ?? 0);
+        setZoneAnalytics(data.zoneAnalytics || null);
+        setMapIncidents(Array.isArray(data.mapIncidents) ? data.mapIncidents : []);
+        setAlerts(Array.isArray(data.broadcasts) ? data.broadcasts : []);
+        if (data.reliefCenter) {
+          setReliefCenter(data.reliefCenter);
         }
-      });
-      incList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setIncidents(incList);
-      if (!selectedId && incList.length > 0) {
-        setSelectedId(incList[0]._id);
-      }
 
-      const alertList = Array.isArray(alertsRes) ? alertsRes : [];
-      setAlerts(alertList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4));
+        if (!selectedId && queueList.length > 0) {
+          setSelectedId(queueList[0]._id);
+        }
+      }
     } catch (err) {
       console.error('ReliefDashboard load error:', err);
     }
-  };
+  }, [selectedId]);
+
+  useEffect(() => {
+    loadData();
+
+    // Periodic auto-refresh every 30 seconds to drop > 1 hour old queue items
+    const autoTimer = setInterval(loadData, 30000);
+
+    // Listen for real-time socket updates
+    socketManager.on('incident:updated', loadData);
+    socketManager.on('incident:new', loadData);
+
+    return () => {
+      clearInterval(autoTimer);
+      socketManager.off('incident:updated', loadData);
+      socketManager.off('incident:new', loadData);
+    };
+  }, [loadData]);
 
   const selectedIncident = incidents.find((i) => i._id === selectedId) || null;
 
@@ -67,11 +83,19 @@ export default function ReliefDashboard() {
   };
 
   const handleUpdateStatus = async (incId, newStatus) => {
+    if (actionLoading) return;
+    setActionLoading(true);
     try {
-      await api.patch(`/incidents/${incId}`, { status: newStatus });
+      if (newStatus === 'dismissed') {
+        await api.patch(`/incidents/${incId}/dismiss`, { dismissReason: 'False Alarm' });
+      } else {
+        await api.patch(`/incidents/${incId}/status`, { status: newStatus });
+      }
       await loadData();
     } catch (err) {
       console.error('Update status error:', err);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -89,12 +113,9 @@ export default function ReliefDashboard() {
     }
   };
 
-  const activeCount = incidents.filter((i) => ['pending', 'assigned', 'en_route'].includes(i.status)).length;
-  const criticalCount = incidents.filter((i) => i.severity === 'critical').length;
-
   return (
     <main className="relief-main">
-      {/* Left Column - Incident Queue */}
+      {/* Left Column - Incident Queue (1-hr logs) */}
       <IncidentQueue
         incidents={incidents}
         selectedId={selectedId}
@@ -134,15 +155,12 @@ export default function ReliefDashboard() {
           <h3 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800, fontSize: '14px', letterSpacing: '0.08em', color: 'var(--nt-bright)', marginBottom: '12px', textTransform: 'uppercase' }}>
             SECTOR HEATMAP // DENSITY
           </h3>
-          <ZoneHeatmap incidents={incidents} />
+          <ZoneHeatmap customData={zoneAnalytics} />
         </div>
 
-        {/* Mini Map */}
-        <div className="mini-map">
-          <span className="mini-map-label">MAP_VIEW // SECTOR_SUMMARY</span>
-          <div style={{ color: 'var(--nt-dim)', fontSize: '13px', fontFamily: 'Outfit, sans-serif' }}>
-            Geospatial Grid Nominal ({incidents.length} pinned)
-          </div>
+        {/* Mini Operational Map View */}
+        <div>
+          <OperationalMap customIncidents={mapIncidents} customCenter={reliefCenter?.location} />
         </div>
 
         {/* System Broadcasts & Alert Feed */}
@@ -156,11 +174,19 @@ export default function ReliefDashboard() {
             ) : (
               alerts.map((al) => (
                 <div className="relief-alert-card" key={al._id}>
-                  <div className="relief-alert-type" style={{ color: al.severity === 'critical' ? '#FF3B30' : '#F97316' }}>
-                    {al.type || 'SYSTEM'} // {al.severity?.toUpperCase() || 'NORMAL'}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <span className="relief-alert-type" style={{ color: al.severity === 'critical' ? '#FF3B30' : '#F97316' }}>
+                      {al.type} // {al.zone || 'All Zones'}
+                    </span>
+                    <span style={{ fontSize: 9, fontFamily: 'Fira Code, monospace', color: '#22C55E', padding: '1px 4px', background: 'rgba(34,197,94,0.15)', borderRadius: 3 }}>
+                      {al.status || 'Delivered'}
+                    </span>
                   </div>
-                  <div className="relief-alert-msg">{al.message || al.description || 'No message.'}</div>
-                  <div className="relief-alert-time">{formatTimeUTC(al.createdAt)}</div>
+                  <div style={{ fontFamily: 'Fira Code, monospace', fontSize: 10, color: 'var(--accent, #F97316)', marginBottom: 2 }}>
+                    ID: {al.broadcastId}
+                  </div>
+                  <div className="relief-alert-msg">{al.message}</div>
+                  <div className="relief-alert-time" style={{ marginTop: 4 }}>{formatTimeUTC(al.createdAt)}</div>
                 </div>
               ))
             )}

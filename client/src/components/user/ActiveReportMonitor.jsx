@@ -1,5 +1,6 @@
 import Icon from '../common/Icon';
 import { STATUS_STEPS, STATUS_STEP_LABELS, STATUS_STEP_ICONS } from '../../utils/constants';
+import { formatLocation } from '../../utils/formatters';
 
 export default function ActiveReportMonitor({ report }) {
   if (!report) {
@@ -12,7 +13,8 @@ export default function ActiveReportMonitor({ report }) {
     );
   }
 
-  const currentStepIdx = STATUS_STEPS.indexOf(report.status);
+  const statusKey = report.status === 'dispatched' ? 'en_route' : report.status;
+  const currentStepIdx = Math.max(0, STATUS_STEPS.indexOf(statusKey));
 
   return (
     <div className="card status-card">
@@ -22,12 +24,14 @@ export default function ActiveReportMonitor({ report }) {
           Active Report Monitor
         </span>
         <span className="section-meta">
-          <span className="section-badge">{report.status?.toUpperCase()}</span>
+          <span className="section-badge">
+            {statusKey === 'en_route' ? 'EN ROUTE' : statusKey?.toUpperCase()}
+          </span>
         </span>
       </div>
 
       <div className="status-headline">
-        {report.type || report.title} — {report.location?.address || 'Unknown'}
+        {report.type || report.title} — {formatLocation(report.location)}
       </div>
       <div className="status-sub">
         Tracking incident response in real-time
