@@ -1,6 +1,9 @@
 pipeline {
-    agent any
-
+    agent {
+        docker {
+            image 'node:22-bookworm'
+        }
+    }
     stages {
 
         stage('Checkout') {
