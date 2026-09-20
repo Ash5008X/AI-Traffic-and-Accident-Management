@@ -1,5 +1,5 @@
 // API base URL and auth storage key
-export const API_BASE = window.NEXUS_API_BASE || 'http://localhost:5000/api';
+export const API_BASE = window.NEXUS_API_BASE || '/api';
 export const AUTH_KEY = 'nexustraffic_auth';
 export const THEME_KEY = 'nt-theme';
 

@@ -13,7 +13,9 @@ const socketManager = {
       const authToken = token || (localStorage.getItem(AUTH_KEY) ? JSON.parse(localStorage.getItem(AUTH_KEY))?.token : null);
       if (!authToken) return null;
 
-      const socketUrl = API_BASE.replace(/\/api\/?$/, '');
+      const socketUrl = API_BASE.startsWith('/')
+                            ? window.location.origin
+                            : API_BASE.replace(/\/api\/?$/, '');
       socket = io(socketUrl, {
         auth: { token: authToken },
         autoConnect: true,

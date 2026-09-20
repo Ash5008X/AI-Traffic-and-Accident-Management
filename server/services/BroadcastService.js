@@ -1,6 +1,6 @@
 const AlertRepository = require('../repositories/AlertRepository');
 const UserRepository = require('../repositories/UserRepository');
-const NotificationService = require('./NotificationService');
+const NotificationService = require('./notificationService');
 const ZoneService = require('./ZoneService');
 const LocationService = require('./LocationService');
 const { emitToAll } = require('./socketService');

@@ -4,7 +4,7 @@ const FieldUnitRepository = require('../repositories/FieldUnitRepository');
 const LocationService = require('./LocationService');
 const ZoneService = require('./ZoneService');
 const AssignmentService = require('./AssignmentService');
-const NotificationService = require('./NotificationService');
+const NotificationService = require('./notificationService');
 const { emitToAll, emitToUser } = require('./socketService');
 const { generateDeterministicIncidentId } = require('../utils/incidentIdGenerator');
 

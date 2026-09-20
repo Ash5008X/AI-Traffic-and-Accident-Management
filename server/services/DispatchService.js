@@ -1,7 +1,7 @@
 const IncidentRepository = require('../repositories/IncidentRepository');
 const FieldUnitRepository = require('../repositories/FieldUnitRepository');
 const TeamRepository = require('../repositories/TeamRepository');
-const NotificationService = require('./NotificationService');
+const NotificationService = require('./notificationService');
 const { emitToAll } = require('./socketService');
 
 /**
