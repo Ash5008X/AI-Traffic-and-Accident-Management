@@ -4,6 +4,9 @@ pipeline {
             image 'node:22-bookworm'
         }
     }
+
+    stages {
+
         stage('Client Dependencies') {
             steps {
                 dir('client') {
@@ -41,6 +44,13 @@ pipeline {
                 dir('server') {
                     sh 'node --check server.js'
                 }
+            }
+        }
+
+        stage('Newman API Tests') {
+            steps {
+                sh 'npm install --no-save newman'
+                sh 'npx newman run tests/postman/NexusTraffic.postman_collection.json --env-var BASE_URL=http://host.docker.internal:8000'
             }
         }
     }

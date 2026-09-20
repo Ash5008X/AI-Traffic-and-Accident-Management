@@ -6,6 +6,10 @@
     "_exporter_id": "58242407"
   },
   "variable": [
+     {
+    "key": "BASE_URL",
+    "value": "http://localhost:8000"
+    },
     {
       "key": "TOKEN",
       "value": ""
@@ -51,7 +55,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8000/api/auth/login",
+          "raw": "{{BASE_URL}}/api/auth/login",
           "protocol": "http",
           "host": [
             "localhost"
@@ -99,7 +103,7 @@
           ]
         },
         "url": {
-          "raw": "http://localhost:8000/api/auth/me",
+          "raw": "{{BASE_URL}}/api/auth/me",
           "protocol": "http",
           "host": [
             "localhost"
