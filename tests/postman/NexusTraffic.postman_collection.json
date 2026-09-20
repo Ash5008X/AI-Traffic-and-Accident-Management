@@ -55,7 +55,9 @@
           }
         },
         "url": {
-          "raw": "{{BASE_URL}}/api/auth/login"
+          "raw": "{{BASE_URL}}/api/auth/login",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "auth", "login"]
         }
       }
     },
@@ -93,7 +95,9 @@
           ]
         },
         "url": {
-          "raw": "{{BASE_URL}}/api/auth/me"
+          "raw": "{{BASE_URL}}/api/auth/me",
+          "host": ["{{BASE_URL}}"],
+          "path": ["api", "auth", "me"]
         }
       }
     }
