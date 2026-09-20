@@ -6,9 +6,9 @@
     "_exporter_id": "58242407"
   },
   "variable": [
-     {
-    "key": "BASE_URL",
-    "value": "http://localhost:8000"
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:8000"
     },
     {
       "key": "TOKEN",
@@ -55,17 +55,7 @@
           }
         },
         "url": {
-          "raw": "{{BASE_URL}}/api/auth/login",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "auth",
-            "login"
-          ]
+          "raw": "{{BASE_URL}}/api/auth/login"
         }
       }
     },
@@ -103,17 +93,7 @@
           ]
         },
         "url": {
-          "raw": "{{BASE_URL}}/api/auth/me",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8000",
-          "path": [
-            "api",
-            "auth",
-            "me"
-          ]
+          "raw": "{{BASE_URL}}/api/auth/me"
         }
       }
     }
