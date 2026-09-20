@@ -4,14 +4,6 @@ pipeline {
             image 'node:22-bookworm'
         }
     }
-    stages {
-
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Client Dependencies') {
             steps {
                 dir('client') {
