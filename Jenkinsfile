@@ -1,7 +1,7 @@
 pipeline {
     agent {
     docker {
-        image 'nexustraffic-ci-agent:22'
+        image 'nexustraffic-ci-agent:26'
         args '--add-host=host.docker.internal:host-gateway'
     }
 }
