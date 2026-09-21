@@ -1,11 +1,10 @@
 pipeline {
     agent {
-    docker {
-        image 'nexustraffic-ci-agent:26'
-        args '--add-host=host.docker.internal:host-gateway'
+        docker {
+            image 'nexustraffic-ci-agent:26'
+            args '--add-host=host.docker.internal:host-gateway --group-add 957'
+        }
     }
-}
-}
 
     stages {
 
@@ -48,14 +47,10 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Build') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'nexus-mongo-uri', variable: 'MONGO_URI'),
-                    string(credentialsId: 'nexus-jwt-secret', variable: 'JWT_SECRET')
-                ]) {
-                    sh 'docker compose build'
-                }
+                sh 'docker compose build'
             }
         }
 
@@ -97,21 +92,24 @@ pipeline {
                 sh 'npx newman run tests/postman/NexusTraffic.postman_collection.json --env-var BASE_URL=http://host.docker.internal:8000'
             }
         }
+    }
+
     post {
-    always {
-        withCredentials([
-            string(credentialsId: 'nexus-mongo-uri', variable: 'MONGO_URI'),
-            string(credentialsId: 'nexus-jwt-secret', variable: 'JWT_SECRET')
-        ]) {
-            sh 'docker compose down || true'
+        always {
+            withCredentials([
+                string(credentialsId: 'nexus-mongo-uri', variable: 'MONGO_URI'),
+                string(credentialsId: 'nexus-jwt-secret', variable: 'JWT_SECRET')
+            ]) {
+                sh 'docker compose down --remove-orphans || true'
+            }
+        }
+
+        success {
+            echo 'NexusTraffic CI pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'NexusTraffic CI pipeline failed.'
         }
     }
-
-    success {
-        echo 'NexusTraffic CI pipeline completed successfully.'
-    }
-
-    failure {
-        echo 'NexusTraffic CI pipeline failed.'
-    }
-}git 
+}
