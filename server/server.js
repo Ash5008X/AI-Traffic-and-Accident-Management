@@ -6,6 +6,12 @@ const { connectDB } = require('./config/db');
 const { initSocket } = require('./services/socketService');
 const { migrateIncidentIds } = require('./utils/incidentIdGenerator');
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok'
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 // Create HTTP Server
