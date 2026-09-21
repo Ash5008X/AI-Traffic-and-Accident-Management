@@ -1,9 +1,10 @@
 pipeline {
     agent {
     docker {
-        image 'node:22-bookworm'
+        image 'nexustraffic-ci-agent:22'
         args '--add-host=host.docker.internal:host-gateway'
     }
+}
 }
 
     stages {
@@ -113,4 +114,4 @@ pipeline {
     failure {
         echo 'NexusTraffic CI pipeline failed.'
     }
-}
+}git 
