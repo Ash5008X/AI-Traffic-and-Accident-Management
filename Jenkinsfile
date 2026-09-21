@@ -1,9 +1,10 @@
 pipeline {
     agent {
-        docker {
-            image 'node:22-bookworm'
-        }
+    docker {
+        image 'node:22-bookworm'
+        args '--add-host=host.docker.internal:host-gateway'
     }
+}
 
     stages {
 
